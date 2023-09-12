@@ -36,7 +36,7 @@ jobs:
           cd ./src
           echo "download"
           wget https://github.com/hxbb00/qtwebengine-opensource-src/releases/download/1.0/breakpad_dev_x86_64.zip -O breakpad_dev.zip
-          mkdir -p ./output && unzip breakpad_dev.zip -d ./output
+          mkdir -p ./breakpad_dev && unzip breakpad_dev.zip -d ./breakpad_dev
           echo "configure"
           cmake .
           echo "make"
