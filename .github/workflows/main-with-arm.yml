@@ -1,0 +1,72 @@
+name: CI-with-arm
+
+on:
+    workflow_dispatch:
+
+jobs:
+  build-arm:
+    strategy:
+      matrix:
+        include:
+          - arch: aarch64
+            distro: ubuntu16.04
+
+    runs-on: ubuntu-20.04
+
+    name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: uraimo/run-on-arch-action@v2
+        name: Build artifact
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+
+          # Create an artifacts directory
+          setup: |
+            mkdir -p "$HOME/breakpad_output"
+            
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "$HOME/breakpad_output:/breakpad_output"
+          
+          # Pass some environment variables to the container
+          env: | # YAML, but pipe character is necessary
+            CC: gcc
+            CXX: g++
+            PLATFORM: ${{ matrix.arch }}
+            ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y --no-install-recommends cmake make build-essential gdb git apt-utils curl unzip ca-certificates
+            apt-get install -q -y --no-install-recommends ninja-build python3-dev wget sudo software-properties-common python-software-properties
+
+          run: |
+            uname -a
+            cat /proc/version
+            pwd
+            ls -al "${PWD}"
+            gcc -v
+            echo "download"
+            wget https://github.com/hxbb00/qtwebengine-opensource-src/releases/download/1.0/breakpad_dev_aarch64.zip -O breakpad_dev.zip
+            mkdir -p ./output && unzip breakpad_dev.zip -d ./output
+            echo "configure"
+            cmake .
+            echo "make"
+            make
+            echo "make install"
+            make install
+            cp -R ./output /breakpad_output
+ 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: breakpad_lite_aarch64
+          path: |
+            ~/breakpad_output
