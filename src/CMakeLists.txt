@@ -22,10 +22,11 @@ link_directories(${CMAKE_SOURCE_DIR}/breakpad_dev/lib)
 
 message(STATUS "breakpad header path: ${CMAKE_SOURCE_DIR}/breakpad_dev/include/breakpad")
 
-add_library(${PROJECT_NAME} SHARED breakpadlite.cpp)
+add_library(${PROJECT_NAME} breakpadlite.cpp)
 
 target_link_libraries(${PROJECT_NAME} breakpad_client pthread)
 
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/output/lib)
+install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/output/lib)
 install(FILES breakpadlite.h DESTINATION ${CMAKE_SOURCE_DIR}/output/include)
+install(FILES ${CMAKE_SOURCE_DIR}/breakpad_dev/lib/libbreakpad_client.a DESTINATION ${CMAKE_SOURCE_DIR}/output/lib)
 install(DIRECTORY breakpad_dev/bin DESTINATION ${CMAKE_SOURCE_DIR}/output/)

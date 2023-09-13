@@ -19,7 +19,8 @@
 extern "C" {
 #endif // __cplusplus
 
-BREAKPAD_LITE_API int regExceptionHandler();
+BREAKPAD_LITE_API void* regExceptionHandler();
+BREAKPAD_LITE_API void unregExceptionHandler(void* handle);
 
 #ifdef __cplusplus
 }

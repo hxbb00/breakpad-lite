@@ -21,4 +21,4 @@ message(STATUS "breakpad header path: ${CMAKE_SOURCE_DIR}/../output/include")
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(${PROJECT_NAME} breakpad_lite pthread)
+target_link_libraries(${PROJECT_NAME} breakpad_lite breakpad_client pthread)

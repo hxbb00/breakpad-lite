@@ -8,8 +8,16 @@ void* context, bool succeeded) {
   return succeeded;
 }
 
-int regExceptionHandler() {
+google_breakpad::ExceptionHandler* g_breakpadExceptionHandler = NULL;
+void* regExceptionHandler() {
   google_breakpad::MinidumpDescriptor descriptor("./dump_dir");
-  google_breakpad::ExceptionHandler eh(descriptor, NULL, dumpCallback, NULL, true, -1);
-  return 0;
+  g_breakpadExceptionHandler = new google_breakpad::ExceptionHandler(descriptor, NULL, dumpCallback, NULL, true, -1);
+  return g_breakpadExceptionHandler;
+}
+
+void unregExceptionHandler(void* handle){
+  if(handle){
+    delete g_breakpadExceptionHandler;
+    g_breakpadExceptionHandler = NULL;
+  }
 }
