@@ -1,4 +1,4 @@
-name: CI-with-arm
+name: CI-release
 
 on:
     workflow_dispatch:
