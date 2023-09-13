@@ -8,6 +8,7 @@ make
 # dmp分析
 
 dmp文件分析需要用到两个可执行程序，第一个是dump_syms，第二个是minidump_stackwalk
+
 1，dump_syms 用来生成可执行程序的符号表，如
 ./dump_syms main > main.sym
 ./dump_syms libsecmodel.so > libsecmodel.so.sym

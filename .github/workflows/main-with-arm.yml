@@ -53,11 +53,17 @@ jobs:
             cat /proc/version
             pwd
             ls -al "${PWD}"
+            echo "apt-get install gcc 4.8"
+            sudo apt-get install -q -y --no-install-recommends gcc-4.8 g++-4.8
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
+            sudo update-alternatives --config gcc
+            sudo update-alternatives --config g++
             gcc -v
             cd ./src
             echo "download"
             wget https://github.com/hxbb00/qtwebengine-opensource-src/releases/download/1.0/breakpad_dev_aarch64.zip -O breakpad_dev.zip
-            mkdir -p ./output && unzip breakpad_dev.zip -d ./output
+            mkdir -p ./breakpad_dev && unzip breakpad_dev.zip -d ./breakpad_dev
             echo "configure"
             cmake .
             echo "make"
