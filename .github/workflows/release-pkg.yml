@@ -164,5 +164,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: breakpad_lite_dev
-          tag_name: ${{ env.TIME }}
+          tag_name: ${{ env.RELEASE_DATE }}
           files: breakpad_lite_dev.zip
