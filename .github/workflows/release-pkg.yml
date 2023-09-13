@@ -1,0 +1,152 @@
+name: CI-with-arm
+
+on:
+    workflow_dispatch:
+
+jobs:
+  build-arm:
+    strategy:
+      matrix:
+        include:
+          - arch: aarch64
+            distro: ubuntu16.04
+
+    runs-on: ubuntu-20.04
+
+    name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: uraimo/run-on-arch-action@v2
+        name: Build artifact
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+
+          # Create an artifacts directory
+          setup: |
+            mkdir -p "$HOME/breakpad_output"
+            
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "$HOME/breakpad_output:/breakpad_output"
+          
+          # Pass some environment variables to the container
+          env: | # YAML, but pipe character is necessary
+            CC: gcc
+            CXX: g++
+            PLATFORM: ${{ matrix.arch }}
+            ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y --no-install-recommends cmake make build-essential gdb git apt-utils curl unzip ca-certificates
+            apt-get install -q -y --no-install-recommends ninja-build python3-dev wget sudo software-properties-common python-software-properties
+
+          run: |
+            uname -a
+            cat /proc/version
+            pwd
+            ls -al "${PWD}"
+            echo "apt-get install gcc 4.8"
+            sudo apt-get install -q -y --no-install-recommends gcc-4.8 g++-4.8
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
+            sudo update-alternatives --config gcc
+            sudo update-alternatives --config g++
+            gcc -v
+            cd ./src
+            echo "download"
+            wget https://github.com/hxbb00/qtwebengine-opensource-src/releases/download/1.0/breakpad_dev_aarch64.zip -O breakpad_dev.zip
+            mkdir -p ./breakpad_dev && unzip breakpad_dev.zip -d ./breakpad_dev
+            echo "configure"
+            cmake .
+            echo "make"
+            make
+            echo "make install"
+            make install
+            mkdir -p /breakpad_output/aarch64
+            cp -R ./output /breakpad_output/aarch64
+ 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: intermediate
+          path: |
+            ~/breakpad_output
+
+  buildx64-on-docker:
+    runs-on: ubuntu-20.04
+    container:
+      image: 'ghcr.io/hxbb00/ubuntu1604:main'
+      options: --user root
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.github_token }}
+
+    env:
+      CC: gcc
+      CXX: g++
+      PLATFORM: x64
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - name: Check for dockerenv file
+        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
+
+      - uses: actions/checkout@v3
+
+      - name: Build
+        shell: bash
+        run: |
+          uname -a
+          cat /proc/version
+          pwd
+          ls -al "${PWD}"
+          echo "apt-get install gcc 4.8"
+          sudo apt-get install -q -y --no-install-recommends gcc-4.8 g++-4.8
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
+          sudo update-alternatives --config gcc
+          sudo update-alternatives --config g++
+          gcc -v
+          cd ./src
+          echo "download"
+          wget https://github.com/hxbb00/qtwebengine-opensource-src/releases/download/1.0/breakpad_dev_x86_64.zip -O breakpad_dev.zip
+          mkdir -p ./breakpad_dev && unzip breakpad_dev.zip -d ./breakpad_dev
+          echo "configure"
+          cmake .
+          echo "make"
+          make
+          echo "make install"
+          make install
+          mkdir -p /breakpad_output/x86_64
+          cp -R ./output /breakpad_output/x86_64
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: intermediate
+          path: |
+            /breakpad_output
+
+  create_package:
+    runs-on: ubuntu-20.04
+    needs: [build-arm, buildx64-on-docker]
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: intermediate
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: intermediate.zip
