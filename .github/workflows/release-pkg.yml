@@ -139,14 +139,27 @@ jobs:
     needs: [build-arm, buildx64-on-docker]
 
     steps:
+      - name: init
+        shell: bash
+        run: |
+          pwd
+          mkdir -p ./artifact
+
       - uses: actions/download-artifact@v3
         with:
           name: intermediate
+          path: ./artifact
 
       - name: Display structure of downloaded files
-        run: ls -R
+        run: ls -al
+        working-directory: ./artifact
+
+      - name: pack downloaded files
+        run: zip -r breakpad_lite_dev.zip ./artifact
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: intermediate.zip
+          name: breakpad_lite_dev
+          tag_name: ${{ github.sha }}
+          files: breakpad_lite_dev.zip
