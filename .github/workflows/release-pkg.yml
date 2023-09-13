@@ -144,7 +144,10 @@ jobs:
         run: |
           pwd
           mkdir -p ./artifact
-
+      - name: set release date
+        run: |
+          echo "RELEASE_DATE=$(date --rfc-3339=date)" >> ${GITHUB_ENV}
+    
       - uses: actions/download-artifact@v3
         with:
           name: intermediate
@@ -161,5 +164,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: breakpad_lite_dev
-          tag_name: v1.0.0
+          tag_name: ${{ env.TIME }}
           files: breakpad_lite_dev.zip
