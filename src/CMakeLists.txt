@@ -5,6 +5,8 @@ project("breakpad_lite")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_compile_options(-fPIC)
+
 add_definitions(-DBREAKPAD_LITE_EXPORT)
 
 include(CheckCXXCompilerFlag)
