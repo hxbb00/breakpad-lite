@@ -50,4 +50,19 @@ jobs:
           cmake .
           msbuild breakpad.sln -p:Configuration=Release
         working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
+
+      - name: pack files 
+         shell: bash
+         run: zip -r breakpad_win.zip ./src/3rdparty/chromium/third_party/breakpad/breakpad/breakpad_build4w/Release
+  
+       - name: set release date
+         run: |
+           echo "RELEASE_DATE=$(date --rfc-3339=date)" >> ${GITHUB_ENV}
+    
+       - name: Release 
+         uses: softprops/action-gh-release@v1 
+         with: 
+           name: breakpad_win_dev 
+           tag_name: ${{ env.RELEASE_DATE }} 
+           files: breakpad_win_dev.zip
         
