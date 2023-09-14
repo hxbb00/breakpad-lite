@@ -48,6 +48,6 @@ jobs:
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\%VS_VERSION%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
           cmake .
-          msbuild breakpad.sln
+          msbuild breakpad.sln -p:Configuration=Release
         working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
         
