@@ -46,7 +46,7 @@ jobs:
       - name: cmake
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\%VS_VERSION%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
+          call "C:\Program Files (x86)\Microsoft Visual Studio\%VS_VERSION%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
           cmake .
           msbuild breakpad.sln
         working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
