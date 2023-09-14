@@ -24,18 +24,13 @@ jobs:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
     
-      - name: Check out breakpad
-        shell: cmd
-        run: |
-          git clone --depth=1 https://github.com/hxbb00/qtwebengine-opensource-src.git C:\_work
-        
       - uses: actions/checkout@v3 
         with: 
           repository: hxbb00/qtwebengine-opensource-src
           sparse-checkout: | 
             src/3rdparty/chromium/third_party/breakpad
              
-      - name: Check out cmakelists
+      - name: Check out breakpad Cmakelists
         shell: cmd
         run: |
           git clone https://github.com/hxbb00/breakpad-lite.git C:\_work2
