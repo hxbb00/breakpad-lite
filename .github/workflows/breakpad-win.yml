@@ -37,18 +37,6 @@ jobs:
         
       - uses: lukka/get-cmake@latest
 
-      - name: Environment
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\%VS_VERSION%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
-          :: Loop over all environment variables and make them global using set-env.
-          :: See: https://stackoverflow.com/a/39184941
-          setlocal
-          for /f "delims== tokens=1,2" %%a in ('set') do (
-            echo ::set-env name=%%a::%%b
-          )
-          endlocal
-
       - name: copy cmakelists
         shell: bash
         run: |
@@ -57,11 +45,9 @@ jobs:
           
       - name: cmake
         shell: cmd
-        run: cmake .
-        working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
-
-      - name: msbuild
-        shell: cmd
-        run: msbuild breakpad.sln
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\%VS_VERSION%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
+          cmake .
+          msbuild breakpad.sln
         working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
         
