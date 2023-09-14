@@ -28,7 +28,13 @@ jobs:
         shell: cmd
         run: |
           git clone --depth=1 https://github.com/hxbb00/qtwebengine-opensource-src.git C:\_work
-          
+        
+      - uses: actions/checkout@v3 
+        with: 
+          repository: hxbb00/qtwebengine-opensource-src
+          sparse-checkout: | 
+            src/3rdparty/chromium/third_party/breakpad
+             
       - name: Check out cmakelists
         shell: cmd
         run: |
@@ -50,15 +56,17 @@ jobs:
 
       - name: copy cmakelists
         shell: bash
-        run: cp -r C:/_work2/breakpad_build4w C:/_work/src/3rdparty/chromium/third_party/breakpad/breakpad
+        run: |
+          cp -r C:/_work2/breakpad_build4w ${{ github.workspace }}/src/3rdparty/chromium/third_party/breakpad/breakpad
+          ls -al ${{ github.workspace }}/src/3rdparty/chromium/third_party/breakpad/breakpad
           
       - name: cmake
         shell: cmd
         run: cmake .
-        working-directory: C:\_work\            src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
+        working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
 
       - name: msbuild
         shell: cmd
         run: msbuild breakpad.sln
-        working-directory: C:\_work\            src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
+        working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
         
