@@ -27,7 +27,7 @@ jobs:
       - name: Check out breakpad
         shell: cmd
         run: |
-          git clone https://github.com/hxbb00/qtwebengine-opensource-src.git C:\_work
+          git clone --depth=1 https://github.com/hxbb00/qtwebengine-opensource-src.git C:\_work
           
       - name: Check out cmakelists
         shell: cmd
