@@ -7,6 +7,7 @@ set(BREAKPAD_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 if(WIN32)
 		add_definitions(-DUNICODE -D_UNICODE)
 		add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS)
+		add_definitions(-DBREAKPAD_LITE_EXPORT)
         set(DEBUG_ACCESS_SDK_DIR "$ENV{VSINSTALLDIR}/DIA SDK")
         if (NOT (EXISTS "${DEBUG_ACCESS_SDK_DIR}"))
             # The Debug Access SDK is required to build the dump_syms tool.
@@ -55,12 +56,19 @@ if(WIN32)
 
 		set(DUMPSYMS_LIBS ${DIA_SDK_GUID_LIB})
 
+		set(breakpadlite_SRCS
+		${CMAKE_CURRENT_SOURCE_DIR}/breakpadlite.cpp
+		)
+
+		add_library(breakpad_lite STATIC ${breakpadlite_SRCS})
+		target_link_libraries(breakpad_lite breakpad_common breakpad)
+
 		set(ConsoleApplicationTest_SRCS
 				${CMAKE_CURRENT_SOURCE_DIR}/ConsoleApplicationTest.cpp
 		)
 
 		add_executable(ConsoleApplicationTest ${ConsoleApplicationTest_SRCS})
-  		target_link_libraries(ConsoleApplicationTest breakpad_common breakpad)
+  		target_link_libraries(ConsoleApplicationTest breakpad_lite)
 
 elseif(APPLE)
 	set(CLIENT_SRC_DIR ${BREAKPAD_SRC_DIR}/client/mac)
@@ -220,6 +228,7 @@ if(WIN32)
 set_target_properties(
 	breakpad_common
 	breakpad
+	breakpad_lite
 	ConsoleApplicationTest
 	PROPERTIES
 		FOLDER "Externals/breakpad"
