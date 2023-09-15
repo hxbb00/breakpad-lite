@@ -37,12 +37,12 @@ jobs:
         
       - uses: lukka/get-cmake@latest
 
-      - name: copy cmakelists
+      - name: copy patch
         shell: bash
         run: |
           cp -r C:/_work2/breakpad_build4w ./src/3rdparty/chromium/third_party/breakpad/breakpad
           ls -al ./src/3rdparty/chromium/third_party/breakpad/breakpad
-          
+
       - name: cmake
         shell: cmd
         run: |
@@ -51,15 +51,18 @@ jobs:
           msbuild breakpad.sln -p:Configuration=Release
         working-directory: ${{ github.workspace }}\src\3rdparty\chromium\third_party\breakpad\breakpad\breakpad_build4w
 
-      - name: pack files 
-        shell: cmd
-        run: 7z a breakpad_win_dev.zip ./src/3rdparty/chromium/third_party/breakpad/breakpad/breakpad_build4w/Release
-  
-      - name: set release date
+      - name: copy build files
         shell: bash
         run: |
-          echo "RELEASE_DATE=$(date --rfc-3339=date)" >> ${GITHUB_ENV}
-    
+          mkdir -p ./_build4w/lib
+          mkdir -p ./_build4w/include
+          cp -r ./src/3rdparty/chromium/third_party/breakpad/breakpad/breakpad_build4w/Release ./_build4w/lib
+          cp -r ./src/3rdparty/chromium/third_party/breakpad/breakpad/breakpad_build4w/*.h ./_build4w/include
+
+      - name: pack files 
+        shell: cmd
+        run: 7z a breakpad_win_dev.zip ./_build4w
+  
       - name: Release 
         uses: softprops/action-gh-release@v1 
         with: 
